@@ -1,0 +1,49 @@
+<!--
+  MinusListView Window
+
+  This window allows the user to manage a list of heroes to exclude from selection or processing.
+  The layout includes:
+    - An AutoCompleteBox for selecting or typing a hero name to exclude, bound to the HeroNames and SelectedAntiHero properties.
+    - An "Add" button to add the selected hero to the exclusion list, bound to the AddToList command.
+    - A ListBox displaying the current list of excluded heroes, bound to the HeroesToExclude collection.
+
+  Data binding is set to the MinusListViewModel, which manages the logic for adding and removing heroes from the exclusion list.
+  The window sizes itself to fit its content.
+-->
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="clr-namespace:HeroTableParser.ViewModels"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        x:Class="HeroTableParser.Views.MinusListView"
+        Title="MinusListView"
+        x:DataType="vm:MinusListViewModel"
+        SizeToContent="WidthAndHeight">
+  <!-- Main vertical layout for exclusion controls -->
+  <StackPanel Spacing="20">
+    <!-- Input area for selecting a hero to exclude -->
+    <StackPanel Orientation="Horizontal" Spacing="10">
+      <AutoCompleteBox Margin="10"
+                      ItemsSource="{Binding HeroNames}"
+                      Text="{Binding SelectedAntiHero}"
+                      Watermark="Hero to exclude...">
+        <AutoCompleteBox.ItemTemplate>
+          <DataTemplate>
+            <TextBlock Text="{Binding}"/>
+          </DataTemplate>
+        </AutoCompleteBox.ItemTemplate>
+      </AutoCompleteBox>
+      <!-- Button to add the selected hero to the exclusion list -->
+      <Button Content="Add" Command="{Binding AddToList}"/>
+    </StackPanel>
+    <!-- List of currently excluded heroes -->
+    <ListBox ItemsSource="{Binding HeroesToExclude}">
+      <ListBox.ItemTemplate>
+        <DataTemplate>
+          <TextBlock Text="{Binding}"/>
+        </DataTemplate>
+      </ListBox.ItemTemplate>
+    </ListBox>
+  </StackPanel>
+</Window>

@@ -1,0 +1,362 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <Design.PreviewWith>
+    <Border Padding="20">
+      <StackPanel Spacing="10" >
+        <TextBlock Classes="h1" Text="Preview" HorizontalAlignment="Center"/>
+        <Button Content="Preview" HorizontalAlignment="Center" Classes="dontBeSeemless" ToolTip.Tip="This is the tooltip"/>
+        <TextBox Classes="square"/>
+      </StackPanel>
+    </Border>
+  </Design.PreviewWith>
+
+  <Style Selector="TextBlock">
+    <Setter Property="FontSize" Value="16"/>
+    <Style Selector="^.h1">
+      <Setter Property="FontSize" Value="25"/>
+      <Setter Property="FontWeight" Value="Light"/>
+    </Style>
+    <Style Selector="^.h2">
+      <Setter Property="FontSize" Value="20"/>
+      <Setter Property="FontWeight" Value="Bold"/>
+    </Style>
+    <Style Selector="^.h3">
+      <Setter Property="FontSize" Value="17"/>
+      <Setter Property="FontWeight" Value="Bold"/>
+    </Style>
+    <Style Selector="^.petite">
+      <Setter Property="FontSize" Value="16"/>
+      <Setter Property="FontWeight" Value="Light"/>
+      <Setter Property="Opacity" Value="50"/>
+    </Style>
+  </Style>
+
+  <Style Selector="TextBox">
+    <Setter Property="FontSize" Value="16"/>
+    <Setter Property="CornerRadius" Value="7"/>
+    <Setter Property="Background" Value="#1e1e1e"/>
+    <Style Selector="^:focus /template/ Border">
+      <Setter Property="Background" Value="#1e1e1e"/>
+      <Setter Property="BorderBrush" Value="White"/>
+      <Setter Property="CornerRadius" Value="7"/>
+    </Style>
+    <Style Selector="^.square">
+      <Setter Property="CornerRadius" Value="0"/>
+      <Setter Property="BorderThickness" Value="0"/>
+    </Style>
+    <Style Selector="^.square:focus /template/ Border">
+      <Setter Property="Background" Value="#1e1e1e"/>
+      <Setter Property="BorderBrush" Value="White"/>
+      <Setter Property="CornerRadius" Value="0"/>
+    </Style>
+  </Style>
+
+  <Style Selector="TextBlock.counter">
+    <Setter Property="FontWeight" Value="Light"/>
+    <Setter Property="FontSize" Value="13"/>
+    <Setter Property="HorizontalAlignment" Value="Center"/>
+    <Setter Property="VerticalAlignment" Value="Center"/>
+  </Style>
+
+  <Style Selector="DataGridColumnHeader">
+    <Setter Property="Background" Value="Transparent"/>
+    <Setter Property="Foreground" Value="White"/>
+    <Setter Property="FontSize" Value="17"/>
+    <Setter Property="FontWeight" Value="Light"/>
+  </Style>
+
+  <Style Selector="Button">
+    <Setter Property="FontSize" Value="16"/>
+    <Setter Property="CornerRadius" Value="7"/>
+    <Setter Property="Background" Value="#a68035"/>
+    <Style Selector="^:pressed /template/ ContentPresenter">
+      <Setter Property="BorderBrush" Value="White"/>
+    </Style>
+    <Style Selector="^:pointerover /template/ ContentPresenter">
+      <Setter Property="Background" Value="#8a6a2c"/>
+    </Style>
+    <Style Selector="^.animatedOut">
+      <Style.Animations>
+        <Animation Duration="0:0:0.3"
+						   Easing="CubicEaseInOut"
+						   FillMode="Forward">
+          <KeyFrame Cue="100%">
+            <Setter Property="RotateTransform.Angle" Value="0"/>
+          </KeyFrame>
+        </Animation>
+      </Style.Animations>
+    </Style>
+    <Style Selector="^.animatedIn">
+      <Style.Animations>
+        <Animation Duration="0:0:0.3"
+						   Easing="CubicEaseInOut"
+						   FillMode="Forward">
+          <KeyFrame Cue="100%">
+            <Setter Property="RotateTransform.Angle" Value="180"/>
+          </KeyFrame>
+        </Animation>
+      </Style.Animations>
+    </Style>
+  </Style>
+
+  <Style Selector="Button /template/ ContentPresenter">
+    <Setter Property="Transitions">
+      <Transitions>
+        <BrushTransition Property="Background" Duration="0:0:0.1"/>
+      </Transitions>
+    </Setter>
+  </Style>
+
+  <Style Selector="Button.dontBeSeemless">
+    <Setter Property="Background" Value="#8a6a2c"/>
+    <Style Selector="^:pointerover /template/ ContentPresenter">
+      <Setter Property="Background" Value="#6e5423"/>
+    </Style>
+  </Style>
+
+  <Style Selector="Button.green">
+    <Setter Property="Foreground" Value="White"/>
+    <Setter Property="Background" Value="Green"/>
+    <Style Selector="^:pointerover /template/ ContentPresenter">
+      <Setter Property="Background" Value="#007500"/>
+    </Style>
+  </Style>
+
+  <Style Selector="Button.red">
+    <Setter Property="Background" Value="#bf1b0f"/>
+    <Setter Property="Foreground" Value="White"/>
+    <Style Selector="^:pointerover /template/ ContentPresenter">
+      <Setter Property="Background" Value="#8a140b"/>
+      <Setter Property="Foreground" Value="White"/>
+    </Style>
+  </Style>
+
+  <Style Selector="Button.redonhover:pointerover /template/ ContentPresenter">
+    <Setter Property="Background" Value="#8a140b"/>
+    <Setter Property="Foreground" Value="White"/>
+  </Style>
+
+  <Style Selector="Button.rednoclick">
+    <Setter Property="Background" Value="#bf1b0f"/>
+    <Setter Property="Foreground" Value="White"/>
+    <Style Selector="^:pointerover /template/ ContentPresenter">
+      <Setter Property="Background" Value="#bf1b0f"/>
+      <Setter Property="Foreground" Value="White"/>
+      <Setter Property="BorderThickness" Value="0"/>
+    </Style>
+    <Style Selector="^:pressed /template/ ContentPresenter">
+      <Setter Property="Background" Value="#bf1b0f"/>
+      <Setter Property="Foreground" Value="White"/>
+    </Style>
+  </Style>
+
+
+  <Style Selector="Button.mini">
+    <Setter Property="CornerRadius" Value="5"/>
+  </Style>
+
+  <Style Selector="Button.paginator">
+    <Setter Property="CornerRadius" Value="20"/>
+    <Setter Property="MinWidth" Value="40"/>
+    <Setter Property="MinHeight" Value="40"/>
+  </Style>
+
+  <Style Selector="Button.square">
+    <Setter Property="CornerRadius" Value="0"/>
+  </Style>
+
+  <Style Selector="Button.trans">
+    <Setter Property="Background" Value="Transparent"/>
+    <Style Selector="^:pointerover /template/ ContentPresenter">
+      <Setter Property="Background" Value="#a68035"/>
+    </Style>
+    <Style Selector="^:disabled /template/ ContentPresenter">
+      <Setter Property="Background" Value="Transparent"/>
+    </Style>
+  </Style>
+
+  <Style Selector="PathIcon">
+    <Setter Property="Height" Value="18"/>
+    <Setter Property="Width" Value="18"/>
+    <Style Selector="^.incoloredbutton">
+      <Setter Property="Foreground" Value="White"/>
+    </Style>
+  </Style>
+
+  <Style Selector="ComboBox">
+    <Setter Property="CornerRadius" Value="7"/>
+    <Setter Property="FontSize" Value="16"/>
+    <Setter Property="Background" Value="#2d2d2d"/>
+    <Style Selector="^:pointerover">
+      <Setter Property="Background" Value="#a68035"/>
+    </Style>
+  </Style>
+
+  <Style Selector="ComboBoxItem">
+    <Setter Property="Background" Value="#2d2d2d"/>
+    <Style Selector="^:selected /template/ ContentPresenter, ^:pointerover /template/ ContentPresenter">
+      <Setter Property="Background" Value="#a68035"/>
+    </Style>
+  </Style>
+
+  <Style Selector="ListBox">
+    <Setter Property="CornerRadius" Value="12"/>
+    <Setter Property="Background" Value="#2d2d2d"/>
+  </Style>
+
+  <Style Selector="ListBoxItem">
+    <Style Selector="^:selected /template/ ContentPresenter">
+      <Setter Property="Background" Value="#a68035"/>
+    </Style>
+    <Style Selector="^:pointerover /template/ ContentPresenter">
+      <Setter Property="Background" Value="#a68035"/>
+    </Style>
+  </Style>
+
+  <Style Selector="ListBox.seemless ListBoxItem/template/ContentPresenter">
+    <Setter Property="Background" Value="Transparent"/>
+    <Style Selector="^:focus">
+      <Setter Property="Background" Value="Transparent"/>
+    </Style>
+    <Style Selector="^:pointerover">
+      <Setter Property="Background" Value="Transparent"/>
+    </Style>
+  </Style>
+
+  <Style Selector="DataGridRow:pointerover">
+    <Setter Property="Background" Value="#a68035"/>
+  </Style>
+
+  <Style Selector="ToolTip">
+    <Setter Property="Background" Value="#1e1e1e"/>
+  </Style>
+
+  <Style Selector="ContextMenu">
+    <Setter Property="Background" Value="#1e1e1e"/>
+  </Style>
+
+  <Style Selector="MenuItem">
+    <Setter Property="Background" Value="#1e1e1e"/>
+  </Style>
+
+  <Style Selector="MenuItem:pointerover /template/ Border#PART_LayoutRoot:pointerover">
+    <Setter Property="Background" Value="#2d2d2d" />
+  </Style>
+
+  <Style Selector="DataGridRow:selected">
+    <Style Selector="^ /template/ Rectangle#BackgroundRectangle">
+      <Setter Property="Fill" Value="#a68035" />
+    </Style>
+    <Style Selector="^:pointerover /template/ Rectangle#BackgroundRectangle">
+      <Setter Property="Fill" Value="#a68035" />
+    </Style>
+    <Style Selector="^:focus /template/ Rectangle#BackgroundRectangle">
+      <Setter Property="Fill" Value="#a68035" />
+    </Style>
+    <Style Selector="^:pointerover:focus /template/ Rectangle#BackgroundRectangle">
+      <Setter Property="Fill" Value="#a68035" />
+    </Style>
+  </Style>
+
+  <Style Selector="DataGrid">
+    <Setter Property="CornerRadius" Value="12"/>
+  </Style>
+
+  <Style Selector="Border.redBG">
+    <Setter Property="Background" Value="#bf1b0f"/>
+    <Setter Property="Padding" Value="5"/>
+    <Setter Property="CornerRadius" Value="7"/>
+  </Style>
+
+  <Style Selector="Border.yellowBG">
+    <Setter Property="Background" Value="#a68035"/>
+    <Setter Property="Padding" Value="5"/>
+    <Setter Property="CornerRadius" Value="7"/>
+  </Style>
+
+  <Style Selector="Border.greenBG">
+    <Setter Property="Background" Value="Green"/>
+    <Setter Property="Padding" Value="5"/>
+    <Setter Property="CornerRadius" Value="7"/>
+  </Style>
+
+  <Style Selector="Border.steamItemCard">
+    <Setter Property="Background" Value="#2d2d2d"/>
+    <Setter Property="CornerRadius" Value="15"/>
+    <Style Selector="^:pointerover">
+      <Setter Property="Background" Value="#424242"/>
+    </Style>
+    <Setter Property="Transitions">
+      <Transitions>
+        <BrushTransition Property="Background" Duration="0:0:0.2"/>
+      </Transitions>
+    </Setter>
+  </Style>
+
+  <Style Selector="Border.selectedSteamItemCard">
+    <Setter Property="Background" Value="#424242"/>
+    <Setter Property="CornerRadius" Value="15"/>
+  </Style>
+
+  <Style Selector="Border.usual">
+    <Setter Property="Background" Value="#2d2d2d"/>
+    <Setter Property="CornerRadius" Value="15"/>
+  </Style>
+
+  <Style Selector="Border.counter">
+    <Setter Property="Background" Value="#a68035"/>
+    <Setter Property="CornerRadius" Value="10"/>
+    <Setter Property="Padding" Value="8, 4"/>
+    <Setter Property="HorizontalAlignment" Value="Center"/>
+    <Setter Property="VerticalAlignment" Value="Center"/>
+    <Setter Property="BorderThickness" Value="1"/>
+    <Setter Property="BorderBrush" Value="White"/>
+  </Style>
+
+  <Style Selector="Border.searchOptions">
+    <Setter Property="Width" Value="0"/>
+    <Setter Property="Height" Value="0"/>
+    <Setter Property="Transitions">
+      <Transitions>
+        <DoubleTransition Property="Width" Duration="0:0:0.3" Easing="QuadraticEaseInOut"/>
+        <DoubleTransition Property="Height" Duration="0:0:0.3" Easing="QuadraticEaseInOut"/>
+      </Transitions>
+    </Setter>
+  </Style>
+
+  <Style Selector="Border.searchOptionsOpen">
+    <Setter Property="Width" Value="350"/>
+    <Setter Property="Height" Value="500"/>
+  </Style>
+
+  <Style Selector="ToggleButton">
+    <Setter Property="CornerRadius" Value="20"/>
+    <Setter Property="FontSize" Value="16"/>
+    <Style Selector="^:checked /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="#a68035"/>
+      <Setter Property="Foreground" Value="White"/>
+    </Style>
+  </Style>
+
+  <Style Selector="ToggleButton /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Transitions">
+      <Transitions>
+        <BrushTransition Property="Background" Duration="0:0:0.3"/>
+      </Transitions>
+    </Setter>
+  </Style>
+
+  <Style Selector="ToggleSwitch">
+    <Setter Property="CornerRadius" Value="20"/>
+    <Style Selector="^:checked /template/ Border#SwitchKnobBounds">
+      <Setter Property="Background" Value="#a68035"/>
+      <Setter Property="BorderBrush" Value="#1e1e1e"/>
+      <Setter Property="BorderThickness" Value="0.6"/>
+    </Style>
+    <Style Selector="^:checked /template/ Ellipse#SwitchKnobOn">
+      <Setter Property="Fill" Value="White"/>
+    </Style>
+  </Style>
+
+ 
+</Styles>

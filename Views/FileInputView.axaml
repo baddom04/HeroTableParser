@@ -1,0 +1,61 @@
+<!--
+  FileInputView Window
+
+  This window allows the user to select an Excel file from their local device.
+  It is centered on the screen and styled with a dark background.
+  The layout includes:
+    - A header message instructing the user to select an Excel file.
+    - A read-only TextBox displaying the selected file path, with a button to open a file picker dialog.
+    - Action buttons to confirm ("Kiválaszt") or cancel ("Mégse") the selection.
+
+  Data binding is used to connect UI elements to the FileInputViewModel:
+    - The file path is bound to the FilePath property.
+    - The file picker button is bound to the OpenFileCommand.
+    - The "Kiválaszt" button is enabled only if an Excel file is selected (ExcelFile is not null).
+-->
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="using:HeroTableParser.ViewModels"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        x:Class="HeroTableParser.FileInputView"
+        x:DataType="vm:FileInputViewModel"
+        Title="Excel input window"
+        Background="#2d2d2d"
+        Width="500" Height="200"
+        MinWidth="500" MinHeight="200"
+        WindowStartupLocation="CenterOwner"
+        ExtendClientAreaToDecorationsHint="True">
+  <!-- Main vertical layout for content -->
+  <StackPanel Spacing="30" VerticalAlignment="Center"
+              HorizontalAlignment="Center" Margin="20">
+    <!-- Instructional header message -->
+    <TextBlock Text="Válaszd ki az excel táblázatot a helyi eszközről!" TextWrapping="Wrap"
+               HorizontalAlignment="Center" TextAlignment="Center" Classes="h3" x:Name="Message"/>
+    <!-- File path display and file picker button -->
+    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+      <!-- Read-only TextBox showing the selected file path -->
+      <TextBox Text="{Binding FilePath}" Width="300" AcceptsReturn="False" AcceptsTab="False"
+               TextWrapping="NoWrap" VerticalAlignment="Center"
+               MaxLength="70" Classes="square" Focusable="False" IsReadOnly="True"
+               Watermark="A táblázat elérési útja..."/>
+      <!-- Button to open the file picker dialog -->
+      <Button CornerRadius="0" BorderThickness="2"
+              Command="{Binding OpenFileCommand}" Height="34"
+              VerticalAlignment="Center" ToolTip.Tip="Kiválasztás a gépről">
+        <PathIcon Data="{StaticResource folder_regular}"/>
+      </Button>
+    </StackPanel>
+    <!-- Action buttons for confirm and cancel -->
+    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="100">
+      <!-- Confirm selection button, enabled only if a file is selected -->
+      <Button Content="Kiválaszt"
+              BorderBrush="White"
+              IsDefault="True" Click="SetExcelPath_Click"
+              IsEnabled="{Binding ExcelFile, Converter={x:Static ObjectConverters.IsNotNull}}"/>
+      <!-- Cancel button -->
+      <Button Content="Mégse" Click="CancelButton_Click"/>
+    </StackPanel>
+  </StackPanel>
+</Window>

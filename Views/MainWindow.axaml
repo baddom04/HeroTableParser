@@ -1,0 +1,81 @@
+<!--
+  MainWindow
+
+  This is the main window for the HeroTableParser application.
+  It provides the user interface for selecting a data sheet, entering enemy heroes, and displaying the best heroes to choose.
+
+  Layout and Features:
+    - Sheet Selection: A ComboBox allows the user to select from available sheets (e.g., All, Gold, Exp, etc.), bound to the Sheets and SelectedSheet properties.
+    - Path Update: A button to trigger a path update for the Excel file.
+    - Enemy Input: For each anti-hero (enemy), an AutoCompleteBox is provided to select or type a hero name, with a button to clear the selection.
+    - Best To Choose: A ListBox displays the best heroes to pick, showing their names and calculated scores.
+
+  Data Binding:
+    - Uses MainWindowViewModel as the DataContext.
+    - AntiHeroes is a collection of AntiHero view models, each with its own selection and delete command.
+    - BestToChoose is a collection of key-value pairs (hero name and score) calculated based on the current anti-hero selections.
+
+  The window is styled with a dark background and centers itself on the screen.
+-->
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:HeroTableParser.ViewModels"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        x:Class="HeroTableParser.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Icon="/Assets/avalonia-logo.ico"
+        Title="HeroTableParser"
+        Background="#1e1e1e"
+        SizeToContent="WidthAndHeight"
+        WindowStartupLocation="CenterScreen"
+        ExtendClientAreaToDecorationsHint="True">
+  <!-- Main vertical layout for the window content -->
+  <StackPanel Spacing="20" Margin="30">
+    <!-- Sheet selection and path update controls -->
+    <StackPanel Orientation="Horizontal" Spacing="10" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0 10 0 0">
+      <TextBlock Text="Selected sheet:" VerticalAlignment="Center"/>
+      <ComboBox ItemsSource="{Binding Sheets}" SelectedItem="{Binding SelectedSheet}"/>
+      <Button Content="Path update" Click="NewPath_Click"/>
+    </StackPanel>
+    <!-- Enemy (anti-hero) input controls -->
+    <ItemsControl ItemsSource="{Binding AntiHeroes}" HorizontalAlignment="Stretch">
+      <ItemsControl.ItemTemplate>
+        <DataTemplate>
+          <Grid ColumnDefinitions="Auto, *, Auto" HorizontalAlignment="Center">
+            <TextBlock Grid.Column="0" Text="Enemy:" VerticalAlignment="Center" Margin="10" TextWrapping="Wrap"/>
+            <StackPanel Grid.Column="2" HorizontalAlignment="Right" Orientation="Horizontal" Spacing="10">
+              <!-- AutoCompleteBox for selecting or typing an enemy hero name -->
+              <AutoCompleteBox Margin="10"
+                        ItemsSource="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).HeroNames}"
+                        Text="{Binding SelectedAntiHero}"
+                               Watermark="Your enemy">
+                <AutoCompleteBox.ItemTemplate>
+                  <DataTemplate>
+                    <TextBlock Text="{Binding}"/>
+                  </DataTemplate>
+                </AutoCompleteBox.ItemTemplate>
+              </AutoCompleteBox>
+              <!-- Button to clear the selected enemy hero -->
+              <Button Command="{Binding DeleteTextCommand}">
+                <PathIcon Data="{StaticResource delete_regular}"/>
+              </Button>
+            </StackPanel>
+          </Grid>
+        </DataTemplate>
+      </ItemsControl.ItemTemplate>
+    </ItemsControl>
+    <!-- List of best heroes to choose, with their scores -->
+    <ListBox ItemsSource="{Binding BestToChoose}">
+      <ListBox.ItemTemplate>
+        <DataTemplate>
+          <Grid ColumnDefinitions="Auto, *, Auto">
+            <TextBlock Grid.Column="0" Text="{Binding Key}"/>
+            <TextBlock Grid.Column="2" Text="{Binding Value}"/>
+          </Grid>
+        </DataTemplate>
+      </ListBox.ItemTemplate>
+    </ListBox>
+  </StackPanel>
+</Window>
