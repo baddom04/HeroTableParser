@@ -12,13 +12,8 @@ namespace HeroTableParser.ViewModels
     /// Handles loading and saving the excluded heroes list using <see cref="ConfigLoader"/>,
     /// and provides commands for adding and removing heroes from the exclusion list.
     /// </summary>
-    internal class MinusListViewModel
+    public class MinusListViewModel
     {
-        /// <summary>
-        /// Loader for persisting the list of excluded heroes to configuration storage.
-        /// </summary>
-        private readonly ConfigLoader _excludedHeroesLoader;
-
         /// <summary>
         /// Gets the list of all available hero names.
         /// </summary>
@@ -33,7 +28,24 @@ namespace HeroTableParser.ViewModels
         /// <summary>
         /// Gets or sets the currently selected anti-hero (for exclusion operations).
         /// </summary>
-        public string SelectedAntiHero { get; set; } = string.Empty;
+        private string _selectedAntiHero = string.Empty;
+        public string SelectedAntiHero
+        {
+            get => _selectedAntiHero;
+            set
+            {
+                if (_selectedAntiHero != value)
+                {
+                    _selectedAntiHero = value;
+
+                    // Ha a felhasználó kiválasztott egy érvényes hőst, adjuk automatikusan a listához
+                    if (!string.IsNullOrWhiteSpace(_selectedAntiHero))
+                    {
+                        AddToExcludedHeroList();
+                    }
+                }
+            }
+        }
 
         /// <summary>
         /// Command to add the selected anti-hero to the exclusion list.
@@ -41,9 +53,9 @@ namespace HeroTableParser.ViewModels
         public ReactiveCommand<Unit, Unit> AddToList { get; }
 
         /// <summary>
-        /// Command to remove the selected anti-hero from the exclusion list.
+        /// Command to clear the exclusion list entirely.
         /// </summary>
-        public ReactiveCommand<Unit, Unit> RemoveFromList { get; }
+        public ReactiveCommand<Unit, Unit> ClearList { get; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MinusListViewModel"/> class.
@@ -53,20 +65,22 @@ namespace HeroTableParser.ViewModels
         public MinusListViewModel(List<string> heroNames)
         {
             HeroNames = heroNames;
-            _excludedHeroesLoader = new ConfigLoader("HeroesToExcludeLoader");
-            string? heroList = _excludedHeroesLoader.Load();
-            HeroesToExclude = heroList is null ? [] : [.. heroList.Split("\n").ToList()];
+            HeroesToExclude = new ObservableCollection<string>();
             AddToList = ReactiveCommand.Create(AddToExcludedHeroList);
-            RemoveFromList = ReactiveCommand.Create(RemoveFromExcludedHeroList);
-            HeroesToExclude.CollectionChanged += HeroesToExclude_CollectionChanged;
+            ClearList = ReactiveCommand.Create(() => HeroesToExclude.Clear());
         }
 
+
         /// <summary>
-        /// Handles changes to the <see cref="HeroesToExclude"/> collection by saving the updated list to configuration.
+        /// Default constructor — used when hero names will be set later.
         /// </summary>
-        private void HeroesToExclude_CollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        public MinusListViewModel()
         {
-            _excludedHeroesLoader.Save(string.Join('\n', HeroesToExclude));
+            HeroNames = new List<string>();
+            HeroesToExclude = new ObservableCollection<string>();
+
+            AddToList = ReactiveCommand.Create(AddToExcludedHeroList);
+            ClearList = ReactiveCommand.Create(() => HeroesToExclude.Clear());
         }
 
         /// <summary>
@@ -82,7 +96,10 @@ namespace HeroTableParser.ViewModels
         /// </summary>
         private void AddToExcludedHeroList()
         {
-            if (!HeroesToExclude.Contains(SelectedAntiHero) && HeroNames.Contains(SelectedAntiHero)) HeroesToExclude.Add(SelectedAntiHero);
+            if (!HeroesToExclude.Contains(SelectedAntiHero) && HeroNames.Contains(SelectedAntiHero))
+            {
+                HeroesToExclude.Add(SelectedAntiHero);
+            }
         }
     }
 }

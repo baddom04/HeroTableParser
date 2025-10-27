@@ -12,8 +12,8 @@ namespace HeroTableParser.ViewModels
 {
     /// <summary>
     /// The main ViewModel for the application's primary window.
-    /// Manages hero data, anti-hero selections, sheet selection, and provides logic for determining the best heroes to choose
-    /// based on user input and loaded Excel data.
+    /// Manages hero data, anti-hero selections, sheet selection, and provides logic for determining
+    /// the best heroes to choose based on user input and loaded Excel data.
     /// </summary>
     public class MainWindowViewModel : ViewModelBase
     {
@@ -31,7 +31,11 @@ namespace HeroTableParser.ViewModels
         public string SelectedSheet
         {
             get { return _selectedSheet; }
-            set { this.RaiseAndSetIfChanged(ref _selectedSheet, value); Init(); }
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _selectedSheet, value);
+                Init();
+            }
         }
 
         /// <summary>
@@ -40,11 +44,11 @@ namespace HeroTableParser.ViewModels
         public Dictionary<StrengthType, int> StrengthPoints = new()
         {
             { StrengthType.VeryGood, 2 },
-            { StrengthType.Good,     1 },
-            { StrengthType.Neutral,  0 },
-            { StrengthType.Bad,     -1 },
+            { StrengthType.Good, 1 },
+            { StrengthType.Neutral, 0 },
+            { StrengthType.Bad, -1 },
             { StrengthType.VeryBad, -2 },
-            { StrengthType.Empty,    0 },
+            { StrengthType.Empty, 0 },
         };
 
         /// <summary>
@@ -111,6 +115,12 @@ namespace HeroTableParser.ViewModels
             AppInfo.ExcelPathChanged += Init;
 
             Init();
+
+            MinusListViewModel = new MinusListViewModel(HeroNames?.ToList() ?? new List<string>());
+            MinusListViewModel.HeroesToExclude.CollectionChanged += (_, __) =>
+            {
+                OnAntiHeroSelectionChanged();
+            };
         }
 
         /// <summary>
@@ -121,7 +131,6 @@ namespace HeroTableParser.ViewModels
             if (AppInfo.ExcelPath is null) return;
 
             Heroes = ExcelLoader.LoadTable(AppInfo.ExcelPath, Sheets.IndexOf(SelectedSheet));
-
             if (Heroes.Count == 0) return;
 
             HeroNames = Heroes.Select(x => x.Name).ToList();
@@ -189,8 +198,11 @@ namespace HeroTableParser.ViewModels
                     }
                 }
             }
+            var filtered = bestAgainst
+            .Where(pair => !MinusListViewModel.HeroesToExclude.Contains(pair.Key))
+            .ToDictionary(pair => pair.Key, pair => pair.Value);
 
-            BestToChoose.AddRange(bestAgainst);
+            BestToChoose.AddRange(filtered);
             FilterAndOrder();
         }
 
@@ -201,5 +213,8 @@ namespace HeroTableParser.ViewModels
         {
             BestToChoose = [.. BestToChoose.OrderByDescending(pair => pair.Value).Take(5)];
         }
+
+        // Custom addition for MinusListView integration
+        public MinusListViewModel MinusListViewModel { get; }
     }
 }

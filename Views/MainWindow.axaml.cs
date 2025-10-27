@@ -1,4 +1,5 @@
 using Avalonia.Controls;
+using Avalonia.Interactivity;
 using HeroTableParser.ViewModels;
 
 namespace HeroTableParser.Views
@@ -31,11 +32,12 @@ namespace HeroTableParser.Views
         /// Handles the window's Loaded event.
         /// If no Excel path is set, prompts the user to select a file and closes the window if canceled.
         /// </summary>
-        private void MainWindow_Loaded(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+        private void MainWindow_Loaded(object? sender, RoutedEventArgs e)
         {
-            if (ViewModel.AppInfo.ExcelPath is not null) return;
+            if (ViewModel.AppInfo.ExcelPath is not null)
+                return;
 
-            GetAndSetPath(true);
+            GetAndSetPath(closeOnCancel: true);
         }
 
         /// <summary>
@@ -46,16 +48,18 @@ namespace HeroTableParser.Views
         /// <param name="closeOnCancel">Whether to close the window if the dialog is canceled.</param>
         private async void GetAndSetPath(bool closeOnCancel)
         {
-            FileInputView fileInputView = new();
+            var fileInputView = new FileInputView();
             await fileInputView.ShowDialog(this);
 
-            if (fileInputView.DialogResult is null && closeOnCancel)
+            // User canceled
+            if (fileInputView.DialogResult is null)
             {
-                Close();
+                if (closeOnCancel)
+                    Close();
                 return;
             }
-            else if (fileInputView.DialogResult is null) return;
 
+            // User selected a file
             ViewModel.AppInfo.ExcelPath = fileInputView.DialogResult;
             ViewModel.Init();
         }
@@ -64,9 +68,9 @@ namespace HeroTableParser.Views
         /// Handles the click event for the "Path update" button.
         /// Opens the file input dialog without closing the main window if canceled.
         /// </summary>
-        private void NewPath_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+        private void NewPath_Click(object? sender, RoutedEventArgs e)
         {
-            GetAndSetPath(false);
+            GetAndSetPath(closeOnCancel: false);
         }
     }
 }
