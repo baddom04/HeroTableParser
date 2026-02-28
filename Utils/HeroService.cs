@@ -1,42 +1,39 @@
-﻿using HeroTableParser.Models;
+﻿using DynamicData;
+using HeroTableParser.Models;
+using ReactiveUI;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
 
 namespace HeroTableParser.Utils
 {
-    public class HeroService
+    public class HeroService : ReactiveObject
     {
-        /// <summary>
-        /// Provides application-level information and Excel file path management.
-        /// </summary>
         public ApplicationInfo AppInfo { get; } 
-        /// <summary>
-        /// List of available sheet names for selection.
-        /// </summary>
         public List<string> Sheets { get; } = ["All", "Gold", "Exp", "Mid", "Jungle", "Roam"];
 
         private string _selectedSheet;
-
-        /// <summary>
-        /// Gets or sets the currently selected sheet name.
-        /// Changing this value re-initializes the hero data.
-        /// </summary>
         public string SelectedSheet
         {
             get { return _selectedSheet; }
-            set
-            {
-                _selectedSheet = value;
-                Init();
-            }
+            set { this.RaiseAndSetIfChanged(ref _selectedSheet, value); }
         }
-        public List<Hero> Heroes { get; private set; } = [];
+        
+        public ObservableCollection<Hero> Heroes { get; } = [];
+        public ObservableCollection<string> HeroNames { get; } = [];
+        
         public event Action? HeroesUpdated;
+        
+        private static HeroService? _instance;
+        public static HeroService Instance => _instance ??= new HeroService();
+
         private HeroService()
         {
             _selectedSheet = Sheets[0];
             AppInfo = new ApplicationInfo();
             AppInfo.ExcelPathChanged += Init;
+            this.WhenAnyValue(x => x.SelectedSheet).Subscribe(_ => Init());
 
             Init();
         }
@@ -45,14 +42,13 @@ namespace HeroTableParser.Utils
         {
             if (AppInfo.ExcelPath is null) return;
 
-            Heroes = ExcelLoader.LoadTable(AppInfo.ExcelPath, Sheets.IndexOf(SelectedSheet));
+            Heroes.Clear();
+            Heroes.AddRange(ExcelLoader.LoadTable(AppInfo.ExcelPath, Sheets.IndexOf(SelectedSheet)));
+
+            HeroNames.Clear(); 
+            HeroNames.AddRange(Heroes.Select(h => h.Name));
+            
             HeroesUpdated?.Invoke();
-        }
-        private static HeroService? _instance;
-        public static HeroService Instance
-        {
-            get { return _instance ??= new HeroService(); }
-            private set { _instance = value; }
         }
     }
 }

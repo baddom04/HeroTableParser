@@ -1,5 +1,6 @@
 using Avalonia.Controls;
 using Avalonia.Interactivity;
+using HeroTableParser.Utils;
 using HeroTableParser.ViewModels;
 
 namespace HeroTableParser.Views
@@ -34,7 +35,7 @@ namespace HeroTableParser.Views
         /// </summary>
         private void MainWindow_Loaded(object? sender, RoutedEventArgs e)
         {
-            if (ViewModel.AppInfo.ExcelPath is not null)
+            if (HeroService.Instance.AppInfo.ExcelPath is not null)
                 return;
 
             GetAndSetPath(closeOnCancel: true);
@@ -60,7 +61,7 @@ namespace HeroTableParser.Views
             }
 
             // User selected a file
-            ViewModel.AppInfo.ExcelPath = fileInputView.DialogResult;
+            HeroService.Instance.AppInfo.ExcelPath = fileInputView.DialogResult;
             ViewModel.Init();
         }
 
