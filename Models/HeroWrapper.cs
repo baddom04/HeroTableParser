@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace HeroTableParser.Models
 {
-    public class HeroWrapper: ReactiveObject
+    public class HeroWrapper : ReactiveObject
     {
         private string _nameInput;
         public string NameInput
@@ -13,13 +13,21 @@ namespace HeroTableParser.Models
             get { return _nameInput; }
             set { this.RaiseAndSetIfChanged(ref _nameInput, value); }
         }
-        private Hero? _hero;
 
+        private Hero? _hero;
         public Hero? Hero
         {
             get { return _hero; }
             set { this.RaiseAndSetIfChanged(ref _hero, value); }
         }
+
+        private bool _isExtra;
+        public bool IsExtra
+        {
+            get { return _isExtra; }
+            set { this.RaiseAndSetIfChanged(ref _isExtra, value); }
+        }
+
 
         public HeroWrapper(string name)
         {

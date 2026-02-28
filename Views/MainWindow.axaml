@@ -89,7 +89,7 @@ Data Binding:
 					<ItemsControl ItemsSource="{Binding AntiHeroes}" HorizontalAlignment="Stretch">
 						<ItemsControl.ItemTemplate>
 							<DataTemplate>
-								<Grid ColumnDefinitions="Auto, *" HorizontalAlignment="Left">
+								<Grid ColumnDefinitions="Auto, *, Auto" HorizontalAlignment="Stretch">
 									<TextBlock Grid.Column="0"
 											   Text="Enemy: "
 											   VerticalAlignment="Center"
@@ -98,18 +98,19 @@ Data Binding:
 
 									<!-- AutoCompleteBox for selecting enemy hero -->
 									<AutoCompleteBox Grid.Column="1"
-												 HorizontalAlignment="Stretch"
-												 Margin="10"
-												 ItemsSource="{Binding Source={x:Static utils:HeroService.Instance}, Path=HeroNames}"
-												 Text="{Binding NameInput, Mode=TwoWay}"
-												 Watermark="Your enemy">
-									<AutoCompleteBox.ItemTemplate>
-										<DataTemplate>
-											<TextBlock Text="{Binding}"/>
-										</DataTemplate>
-									</AutoCompleteBox.ItemTemplate>
-								</AutoCompleteBox>
+													 HorizontalAlignment="Stretch"
+													 Margin="10"
+													 ItemsSource="{Binding Source={x:Static utils:HeroService.Instance}, Path=HeroNames}"
+													 Text="{Binding NameInput, Mode=TwoWay}"
+													 Watermark="Your enemy">
+										<AutoCompleteBox.ItemTemplate>
+											<DataTemplate>
+												<TextBlock Text="{Binding}" HorizontalAlignment="Stretch"/>
+											</DataTemplate>
+										</AutoCompleteBox.ItemTemplate>
+									</AutoCompleteBox>
 
+									<ToggleButton Grid.Column="2" Content="1.5x" IsChecked="{Binding IsExtra, Mode=TwoWay}" Margin="10"/>
 								</Grid>
 							</DataTemplate>
 						</ItemsControl.ItemTemplate>

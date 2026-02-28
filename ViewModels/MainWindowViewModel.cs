@@ -11,8 +11,8 @@ namespace HeroTableParser.ViewModels
 {
     public class MainWindowViewModel : ViewModelBase
     {
-        private KeyValuePair<string, int>? _selectedHero;
-        public KeyValuePair<string, int>? SelectedHero
+        private KeyValuePair<string, double>? _selectedHero;
+        public KeyValuePair<string, double>? SelectedHero
         {
             get { return _selectedHero; }
             set { this.RaiseAndSetIfChanged(ref _selectedHero, value); }
@@ -25,15 +25,15 @@ namespace HeroTableParser.ViewModels
             set { this.RaiseAndSetIfChanged(ref _antiHeroes, value); }
         }
 
-        private ObservableCollection<KeyValuePair<string, int>> _bestToChoose = [];
-        public ObservableCollection<KeyValuePair<string, int>> BestToChoose
+        private ObservableCollection<KeyValuePair<string, double>> _bestToChoose = [];
+        public ObservableCollection<KeyValuePair<string, double>> BestToChoose
         {
             get { return _bestToChoose; }
             set { this.RaiseAndSetIfChanged(ref _bestToChoose, value); }
         }
 
         public MinusListViewModel MinusListViewModel { get; private set; }
-        public ObservableCollection<KeyValuePair<string, int>> HeroCounteredBy { get; set; } = [];
+        public ObservableCollection<KeyValuePair<string, double>> HeroCounteredBy { get; set; } = [];
         public ObservableCollection<HeroWrapper> FriendlyHeroes { get; set; } = [];
 
         private readonly List<IDisposable> _subscriptions = [];
@@ -52,7 +52,7 @@ namespace HeroTableParser.ViewModels
                 Init();
             };
 
-            this.WhenAnyValue(vm => vm.SelectedHero).Subscribe(selectedHero => OnSelectedBestToChooseHeroChanged(selectedHero));
+            this.WhenAnyValue(vm => vm.SelectedHero).Subscribe(OnSelectedBestToChooseHeroChanged);
         }
 
         public void Init()
@@ -76,7 +76,7 @@ namespace HeroTableParser.ViewModels
             }
         }
 
-        private void OnSelectedBestToChooseHeroChanged(KeyValuePair<string, int>? selectedBestToChooseHero)
+        private void OnSelectedBestToChooseHeroChanged(KeyValuePair<string, double>? selectedBestToChooseHero)
         {
             HeroCounteredBy.Clear();
 
@@ -91,7 +91,8 @@ namespace HeroTableParser.ViewModels
 
                 if (strength != StrengthType.Empty)
                 {
-                    HeroCounteredBy.Add(new KeyValuePair<string, int>(antiHero.Hero!.Name, (int)strength));
+                    double score = antiHero.IsExtra ? (double)((int)strength * 1.5d) : (int)strength;
+                    HeroCounteredBy.Add(new KeyValuePair<string, double>(antiHero.Hero!.Name, score));
                 }
             }
         }
@@ -100,6 +101,7 @@ namespace HeroTableParser.ViewModels
         {
             HeroWrapper ah = new(string.Empty);
             _subscriptions.Add(ah.WhenAnyValue(x => x.Hero).Subscribe(_ => OnAntiHeroSelectionChanged()));
+            _subscriptions.Add(ah.WhenAnyValue(x => x.IsExtra).Subscribe(_ => OnAntiHeroSelectionChanged()));
             heroes.Add(ah);
         }
 
@@ -107,7 +109,7 @@ namespace HeroTableParser.ViewModels
         {
             BestToChoose.Clear();
 
-            Dictionary<string, int> bestAgainst = [];
+            Dictionary<string, double> bestAgainst = [];
 
             foreach (var antihero in AntiHeroes.Where(ah => ah.Hero is not null))
             {
@@ -117,7 +119,7 @@ namespace HeroTableParser.ViewModels
                     foreach (string inspectedHero in heroesForStrength)
                     {
                         bestAgainst.TryAdd(inspectedHero, 0);
-                        bestAgainst[inspectedHero] += (int)strength;
+                        bestAgainst[inspectedHero] += antihero.IsExtra ? (double)((int)strength * 1.5d) : (int)strength;
                     }
                 }
             }
