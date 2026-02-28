@@ -1,4 +1,5 @@
 ﻿using ReactiveUI;
+using System;
 using System.Collections.Generic;
 
 namespace HeroTableParser.Models
@@ -12,7 +13,14 @@ namespace HeroTableParser.Models
         /// <summary>
         /// Gets or sets the name of the hero.
         /// </summary>
-        public string Name { get; set; } = name;
+        private string _name = name;
+        public string Name
+        {
+            get { return _name; }
+            set { _name = value; HeroNameChanged?.Invoke(); }
+        }
+
+        public event Action? HeroNameChanged;
 
         /// <summary>
         /// Gets or sets the mapping between <see cref="StrengthType"/> and a list of color names or identifiers.

@@ -6,7 +6,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Reactive;
 
 namespace HeroTableParser.ViewModels
 {
@@ -17,67 +16,19 @@ namespace HeroTableParser.ViewModels
     /// </summary>
     public class MainWindowViewModel : ViewModelBase
     {
-        /// <summary>
-        /// List of available sheet names for selection.
-        /// </summary>
-        public List<string> Sheets { get; } = ["All", "Gold", "Exp", "Mid", "Jungle", "Roam"];
-
-        private string _selectedSheet;
-
-        /// <summary>
-        /// Gets or sets the currently selected sheet name.
-        /// Changing this value re-initializes the hero data.
-        /// </summary>
-        public string SelectedSheet
+        private KeyValuePair<string, int>? _selectedHero;
+        public KeyValuePair<string, int>? SelectedHero
         {
-            get { return _selectedSheet; }
-            set
-            {
-                this.RaiseAndSetIfChanged(ref _selectedSheet, value);
-                Init();
-            }
+            get { return _selectedHero; }
+            set { this.RaiseAndSetIfChanged(ref _selectedHero, value); }
         }
 
-        /// <summary>
-        /// Maps <see cref="StrengthType"/> to their corresponding point values for scoring.
-        /// </summary>
-        public Dictionary<StrengthType, int> StrengthPoints = new()
-        {
-            { StrengthType.VeryGood, 2 },
-            { StrengthType.Good, 1 },
-            { StrengthType.Neutral, 0 },
-            { StrengthType.Bad, -1 },
-            { StrengthType.VeryBad, -2 },
-            { StrengthType.Empty, 0 },
-        };
-
-        /// <summary>
-        /// Provides application-level information and Excel file path management.
-        /// </summary>
-        public ApplicationInfo AppInfo { get; }
-
-        private List<Hero> _heroes;
-
-        /// <summary>
-        /// Gets or sets the list of loaded heroes from the Excel file.
-        /// </summary>
-        public List<Hero> Heroes
-        {
-            get { return _heroes; }
-            set { this.RaiseAndSetIfChanged(ref _heroes, value); }
-        }
-
-        /// <summary>
-        /// Gets the collection of hero names for display or selection.
-        /// </summary>
-        public IReadOnlyCollection<string> HeroNames { get; private set; }
-
-        private ObservableCollection<AntiHero> _antiHeroes = [];
+        private ObservableCollection<Hero> _antiHeroes = [];
 
         /// <summary>
         /// Gets or sets the collection of anti-hero selections.
         /// </summary>
-        public ObservableCollection<AntiHero> AntiHeroes
+        public ObservableCollection<Hero> AntiHeroes
         {
             get { return _antiHeroes; }
             set { this.RaiseAndSetIfChanged(ref _antiHeroes, value); }
@@ -94,15 +45,20 @@ namespace HeroTableParser.ViewModels
             set { this.RaiseAndSetIfChanged(ref _bestToChoose, value); }
         }
 
-        /// <summary>
-        /// Command to remove an anti-hero from the selection.
-        /// </summary>
-        public ReactiveCommand<AntiHero, Unit> DeleteAntiHeroCommand { get; private set; }
+        // A MinusListViewModel tulajdonság
+        public MinusListViewModel MinusListViewModel { get; private set; }
 
-        /// <summary>
-        /// Command to add a new anti-hero to the selection.
-        /// </summary>
-        public ReactiveCommand<Unit, Unit> AddAntiHeroCommand { get; private set; }
+        public ObservableCollection<KeyValuePair<string, int>> HeroCounteredBy { get; set; } = [];
+
+        public ObservableCollection<Hero> FriendlyHeroes { get; set; } = [];
+
+        private List<string> _heroNames = [];
+        public List<string> HeroNames
+        {
+            get { return _heroNames; }
+            set { this.RaiseAndSetIfChanged(ref _heroNames, value); }
+        }
+
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MainWindowViewModel"/> class.
@@ -110,17 +66,18 @@ namespace HeroTableParser.ViewModels
         /// </summary>
         public MainWindowViewModel()
         {
-            _selectedSheet = Sheets[0];
-            AppInfo = new ApplicationInfo();
-            AppInfo.ExcelPathChanged += Init;
+            MinusListViewModel = new MinusListViewModel();
 
             Init();
 
-            MinusListViewModel = new MinusListViewModel(HeroNames?.ToList() ?? new List<string>());
+            MinusListViewModel = new MinusListViewModel(HeroNames);
             MinusListViewModel.HeroesToExclude.CollectionChanged += (_, __) =>
             {
                 OnAntiHeroSelectionChanged();
             };
+            HeroService.Instance.HeroesUpdated += () => { HeroCounteredBy.Clear(); HeroNames = [.. HeroService.Instance.Heroes.Select(h => h.Name)]; Init(); };
+
+            this.WhenAnyValue(vm => vm.SelectedHero).Subscribe(selectedHero => OnSelectedHeroChanged(selectedHero));
         }
 
         /// <summary>
@@ -128,46 +85,59 @@ namespace HeroTableParser.ViewModels
         /// </summary>
         public void Init()
         {
-            if (AppInfo.ExcelPath is null) return;
+            if (HeroService.Instance.Heroes.Count == 0) return;
 
-            Heroes = ExcelLoader.LoadTable(AppInfo.ExcelPath, Sheets.IndexOf(SelectedSheet));
-            if (Heroes.Count == 0) return;
+            // Ha van MinusListViewModel, frissítsük a hősneveket
+            if (MinusListViewModel is not null)
+            {
+                MinusListViewModel.HeroNames.Clear();
+                MinusListViewModel.HeroNames.AddRange(HeroNames);
+            }
 
-            HeroNames = Heroes.Select(x => x.Name).ToList();
-
-            // Unsubscribe from previous anti-hero events and clear the collection
-            AntiHeroes.ToList().ForEach(ah => ah.SelectedAntiHeroChanged -= OnAntiHeroSelectionChanged);
+            AntiHeroes.ToList().ForEach(ah => ah.HeroNameChanged -= OnAntiHeroSelectionChanged);
             AntiHeroes.Clear();
+            FriendlyHeroes.Clear();
 
             // Add default anti-hero slots
             for (int i = 0; i < 5; i++)
             {
-                AddAntiHero();
+                AddHeroToObservedCollection(AntiHeroes);
+                if (i != 0) AddHeroToObservedCollection(FriendlyHeroes);
             }
-
-            DeleteAntiHeroCommand = ReactiveCommand.Create<AntiHero>(RemoveAntiHero);
-            AddAntiHeroCommand = ReactiveCommand.Create(AddAntiHero);
         }
 
-        /// <summary>
-        /// Removes the specified anti-hero from the selection and updates the best-to-choose list.
-        /// </summary>
-        /// <param name="ah">The anti-hero to remove.</param>
-        private void RemoveAntiHero(AntiHero ah)
+        private void OnSelectedHeroChanged(KeyValuePair<string, int>? selectedBestToChooseHero)
         {
-            AntiHeroes.Remove(ah);
-            ah.SelectedAntiHeroChanged -= OnAntiHeroSelectionChanged;
-            OnAntiHeroSelectionChanged();
+            HeroCounteredBy.Clear();
+
+            if (selectedBestToChooseHero is null)
+            {
+                return;
+            }
+
+            foreach (var antiHero in AntiHeroes.Where(ah => !string.IsNullOrWhiteSpace(ah.Name)))
+            {
+                var hero = HeroService.Instance.Heroes.SingleOrDefault(h => h.Name == antiHero.Name);
+
+                if (hero is null) { continue; }
+
+                var strength = hero.HeroColorPairs.FirstOrDefault(pair => pair.Value.Contains(selectedBestToChooseHero.Value.Key)).Key;
+
+                if (strength != StrengthType.Empty)
+                {
+                    HeroCounteredBy.Add(new KeyValuePair<string, int>(antiHero.Name, (int)strength));
+                }
+            }
         }
 
         /// <summary>
         /// Adds a new anti-hero to the selection and updates the best-to-choose list.
         /// </summary>
-        private void AddAntiHero()
+        private void AddHeroToObservedCollection(ObservableCollection<Hero> heroes)
         {
-            AntiHero ah = new();
-            ah.SelectedAntiHeroChanged += OnAntiHeroSelectionChanged;
-            AntiHeroes.Add(ah);
+            Hero ah = new(string.Empty);
+            ah.HeroNameChanged += OnAntiHeroSelectionChanged;
+            heroes.Add(ah);
             OnAntiHeroSelectionChanged();
         }
 
@@ -181,40 +151,32 @@ namespace HeroTableParser.ViewModels
 
             Dictionary<string, int> bestAgainst = [];
 
-            foreach (AntiHero antihero in AntiHeroes)
+            foreach (var antihero in AntiHeroes)
             {
-                if (Heroes.Find(h => h.Name == antihero.SelectedAntiHero) is null) continue;
+                var hero = HeroService.Instance.Heroes.FirstOrDefault(h => h.Name == antihero.Name);
+
+                if (hero is null) continue;
 
                 foreach (StrengthType strength in Enum.GetValues(typeof(StrengthType)))
                 {
-                    var vmi = Heroes.Find(h => h.Name == antihero.SelectedAntiHero)!.HeroColorPairs[strength];
-                    foreach (string hero in vmi)
+                    var heroesForStrength = hero.HeroColorPairs[strength];
+                    foreach (string inspectedHero in heroesForStrength)
                     {
-                        if (!bestAgainst.ContainsKey(hero))
-                        {
-                            bestAgainst[hero] = 0;
-                        }
-                        bestAgainst[hero] += StrengthPoints[strength];
+                        bestAgainst.TryAdd(inspectedHero, 0);
+                        bestAgainst[inspectedHero] += (int)strength;
                     }
                 }
             }
+
+            var excludedHeroes = new HashSet<string>(MinusListViewModel.HeroesToExclude);
+            excludedHeroes.UnionWith(AntiHeroes.Where(ah => !string.IsNullOrWhiteSpace(ah.Name)).Select(ah => ah.Name));
+            excludedHeroes.UnionWith(FriendlyHeroes.Select(fh => fh.Name));
+
             var filtered = bestAgainst
-            .Where(pair => !MinusListViewModel.HeroesToExclude.Contains(pair.Key))
+            .Where(pair => !excludedHeroes.Contains(pair.Key))
             .ToDictionary(pair => pair.Key, pair => pair.Value);
 
-            BestToChoose.AddRange(filtered);
-            FilterAndOrder();
+            BestToChoose.AddRange(filtered.OrderByDescending(pair => pair.Value).Take(5));
         }
-
-        /// <summary>
-        /// Orders the <see cref="BestToChoose"/> collection by score and keeps only the top 5 entries.
-        /// </summary>
-        private void FilterAndOrder()
-        {
-            BestToChoose = [.. BestToChoose.OrderByDescending(pair => pair.Value).Take(5)];
-        }
-
-        // Custom addition for MinusListView integration
-        public MinusListViewModel MinusListViewModel { get; }
     }
 }

@@ -9,31 +9,31 @@
         /// <summary>
         /// Indicates a very high or exceptional strength.
         /// </summary>
-        VeryGood,
+        VeryGood = 2,
 
         /// <summary>
         /// Indicates above average or good strength.
         /// </summary>
-        Good,
+        Good = 1,
 
         /// <summary>
         /// Indicates a neutral or average strength.
         /// </summary>
-        Neutral,
+        Neutral = 0,
 
         /// <summary>
         /// Indicates below average or poor strength.
         /// </summary>
-        Bad,
+        Bad = -1,
 
         /// <summary>
         /// Indicates very low or exceptionally poor strength.
         /// </summary>
-        VeryBad,
+        VeryBad = -2,
 
         /// <summary>
         /// Indicates the absence of a strength value.
         /// </summary>
-        Empty
+        Empty = -99
     }
 }
